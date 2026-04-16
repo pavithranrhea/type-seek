@@ -1,0 +1,971 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>type & seek</title>
+  <link rel="icon" type="image/x-icon" href="icon.png">
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Roboto:wght@400;500;700&family=Montserrat:wght@400;600;700&family=Poppins:wght@400;600;700&family=Nunito:wght@400;700&family=Raleway:wght@400;600;700&family=Oswald:wght@400;500;700&family=Merriweather:wght@400;700&family=Playfair+Display:wght@400;700&family=Libre+Baskerville:wght@400;700&family=PT+Serif:wght@400;700&family=Source+Sans+3:wght@400;600;700&family=Work+Sans:wght@400;600;700&family=DM+Sans:wght@400;500;700&family=Fira+Sans:wght@400;600;700&family=Inconsolata:wght@400;700&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
+
+  <style>
+    :root {
+      --bg: #f6f7fb;
+      --surface: #ffffff;
+      --surface-soft: #f0f2f8;
+      --border: #e8ebf3;
+      --text: #111318;
+      --muted: #6d7280;
+      --accent: #6f5cff;
+      --accent-2: #22c3a6;
+      --accent-3: #ff8a5b;
+      --shadow: 0 20px 60px rgba(24, 33, 61, 0.08);
+      --radius-lg: 28px;
+      --radius-md: 20px;
+      --radius-sm: 14px;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      font-family: Inter, system-ui, sans-serif;
+      background:
+        radial-gradient(circle at top left, rgba(111, 92, 255, 0.10), transparent 26%),
+        radial-gradient(circle at 88% 14%, rgba(34, 195, 166, 0.10), transparent 18%),
+        var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+    }
+
+    .wrap {
+      width: min(1180px, calc(100% - 48px));
+      margin: 40px auto 56px;
+    }
+
+    .top {
+      display: flex;
+      justify-content: center;
+      margin-bottom: 34px;
+    }
+
+    .brand-logo {
+      display: block;
+      width: min(360px, 72vw);
+      height: auto;
+      object-fit: contain;
+    }
+
+    .main-grid {
+      display: grid;
+      grid-template-columns: 370px 1fr;
+      gap: 24px;
+      align-items: start;
+    }
+
+    .panel {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      box-shadow: var(--shadow);
+      overflow: hidden;
+      position: relative;
+    }
+
+    .panel::after {
+      content: "";
+      position: absolute;
+      right: -40px;
+      top: -40px;
+      width: 120px;
+      height: 120px;
+      border-radius: 999px;
+      background: rgba(34, 195, 166, 0.08);
+    }
+
+    .panel-inner {
+      position: relative;
+      z-index: 1;
+      padding: 26px;
+    }
+
+    .panel-title {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 14px;
+      margin-bottom: 18px;
+    }
+
+    .panel-title h2 {
+      margin: 0;
+      font-size: 28px;
+      letter-spacing: -0.03em;
+      text-transform: lowercase;
+    }
+
+    .dot {
+      width: 12px;
+      height: 12px;
+      border-radius: 999px;
+      background: var(--accent-3);
+      box-shadow: 18px 0 0 rgba(34, 195, 166, 0.9), 36px 0 0 rgba(111, 92, 255, 0.9);
+      margin-right: 36px;
+      flex: 0 0 auto;
+    }
+
+    .helper {
+      color: var(--muted);
+      line-height: 1.6;
+      font-size: 14px;
+      margin: 0 0 18px;
+      text-transform: lowercase;
+    }
+
+    .stack {
+      display: grid;
+      gap: 14px;
+    }
+
+    .field label {
+      display: block;
+      font-size: 13px;
+      font-weight: 700;
+      margin-bottom: 8px;
+      text-transform: lowercase;
+    }
+
+    textarea, select, input[type="text"] {
+      width: 100%;
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      background: var(--surface-soft);
+      padding: 14px 15px;
+      font: inherit;
+      color: var(--text);
+      outline: none;
+      text-transform: lowercase;
+    }
+
+    textarea {
+      min-height: 110px;
+      resize: vertical;
+    }
+
+    .row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+    }
+
+    .toggle-row {
+      display: grid;
+      gap: 10px;
+    }
+
+    .check {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 12px 14px;
+      border-radius: 16px;
+      background: var(--surface-soft);
+      border: 1px solid var(--border);
+      font-size: 14px;
+      text-transform: lowercase;
+    }
+
+    .check input { accent-color: var(--accent); }
+
+    .action-row {
+      display: grid;
+      gap: 10px;
+      margin-top: 6px;
+    }
+
+    button {
+      appearance: none;
+      border: 0;
+      border-radius: 16px;
+      padding: 14px 16px;
+      font: inherit;
+      font-weight: 700;
+      cursor: pointer;
+      transition: transform 0.15s ease, opacity 0.15s ease;
+      text-transform: lowercase;
+    }
+
+    button:hover { transform: translateY(-1px); }
+    button:disabled { opacity: 0.55; cursor: not-allowed; transform: none; }
+
+    .primary {
+      background: linear-gradient(135deg, var(--accent), #8b7cff);
+      color: white;
+    }
+
+    .secondary {
+      background: #eef1f8;
+      color: var(--text);
+    }
+
+    .status {
+      display: none;
+      margin-bottom: 16px;
+      padding: 13px 14px;
+      border-radius: 16px;
+      background: rgba(111, 92, 255, 0.08);
+      color: var(--accent);
+      font-size: 14px;
+      font-weight: 600;
+      text-transform: lowercase;
+    }
+
+    .status.show { display: block; }
+    .status.warn {
+      background: rgba(255, 138, 91, 0.10);
+      color: #cb5f31;
+    }
+
+    .preview-card {
+      background: var(--surface-soft);
+      border: 1px solid var(--border);
+      border-radius: 22px;
+      padding: 16px;
+      margin-bottom: 18px;
+    }
+
+    .preview-head {
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      align-items: center;
+      margin-bottom: 12px;
+    }
+
+    .preview-head h3 {
+      margin: 0;
+      font-size: 14px;
+      text-transform: lowercase;
+    }
+
+    .mini-tag {
+      display: inline-flex;
+      align-items: center;
+      padding: 7px 10px;
+      border-radius: 999px;
+      background: white;
+      border: 1px solid var(--border);
+      color: var(--muted);
+      font-size: 12px;
+      font-weight: 700;
+      text-transform: lowercase;
+    }
+
+    .dropzone {
+      min-height: 220px;
+      border-radius: 18px;
+      background: white;
+      border: 1.5px dashed #d7ddeb;
+      display: grid;
+      place-items: center;
+      overflow: hidden;
+      text-align: center;
+      padding: 20px;
+      cursor: pointer;
+      transition: border-color 0.18s ease, background 0.18s ease, transform 0.18s ease;
+    }
+
+    .dropzone:hover,
+    .dropzone.dragover {
+      border-color: var(--accent);
+      background: #faf9ff;
+      transform: translateY(-1px);
+    }
+
+    .dropzone input {
+      display: none;
+    }
+
+    .dropzone-copy {
+      max-width: 250px;
+    }
+
+    .dropzone-title {
+      font-size: 16px;
+      font-weight: 700;
+      margin-bottom: 6px;
+      text-transform: lowercase;
+    }
+
+    .dropzone-subtitle {
+      color: var(--muted);
+      font-size: 14px;
+      line-height: 1.6;
+      text-transform: lowercase;
+    }
+
+    .image-preview, .text-preview {
+      min-height: 220px;
+      border-radius: 18px;
+      background: white;
+      border: 1px dashed #dfe4ef;
+      display: grid;
+      place-items: center;
+      overflow: hidden;
+      text-align: center;
+      padding: 20px;
+    }
+
+    .image-preview {
+      min-height: 0;
+      width: 100%;
+      border: 0;
+      background: transparent;
+      padding: 0;
+    }
+
+    .image-preview img {
+      display: block;
+      max-width: 100%;
+      max-height: 300px;
+      border-radius: 14px;
+    }
+
+    .text-preview-sample {
+      font-size: clamp(28px, 4vw, 42px);
+      line-height: 1.18;
+      font-weight: 700;
+      letter-spacing: -0.03em;
+      max-width: 100%;
+      word-break: break-word;
+      text-transform: lowercase;
+    }
+
+    .stats {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 12px;
+      margin-top: 16px;
+    }
+
+    .stat {
+      background: var(--surface-soft);
+      border: 1px solid var(--border);
+      border-radius: 18px;
+      padding: 14px;
+    }
+
+    .stat .k {
+      font-size: 12px;
+      font-weight: 700;
+      color: var(--muted);
+      margin-bottom: 6px;
+      text-transform: lowercase;
+    }
+
+    .stat .v {
+      font-size: 16px;
+      font-weight: 700;
+      line-height: 1.4;
+      text-transform: lowercase;
+    }
+
+    .result-list {
+      display: grid;
+      gap: 14px;
+    }
+
+    .result-card {
+      background: var(--surface-soft);
+      border: 1px solid var(--border);
+      border-radius: 22px;
+      padding: 18px;
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 18px;
+      align-items: center;
+      transition: transform 0.15s ease, box-shadow 0.15s ease;
+    }
+
+    .result-card:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 16px 30px rgba(24, 33, 61, 0.06);
+    }
+
+    .result-card h3 {
+      margin: 0 0 8px;
+      font-size: 20px;
+      letter-spacing: -0.03em;
+      text-transform: lowercase;
+    }
+
+    .result-meta {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      margin-bottom: 12px;
+    }
+
+    .tag {
+      display: inline-flex;
+      align-items: center;
+      padding: 7px 10px;
+      border-radius: 999px;
+      background: white;
+      border: 1px solid var(--border);
+      font-size: 12px;
+      font-weight: 700;
+      color: var(--muted);
+      text-transform: lowercase;
+    }
+
+    .sample-line {
+      font-size: clamp(24px, 3vw, 36px);
+      line-height: 1.24;
+      color: var(--text);
+      margin-bottom: 10px;
+      text-transform: lowercase;
+    }
+
+    .result-note {
+      margin: 0;
+      color: var(--muted);
+      font-size: 13px;
+      line-height: 1.6;
+      text-transform: lowercase;
+    }
+
+    .score {
+      min-width: 104px;
+      padding: 16px 14px;
+      border-radius: 20px;
+      text-align: center;
+      background: linear-gradient(180deg, rgba(111, 92, 255, 0.12), rgba(34, 195, 166, 0.10));
+      border: 1px solid rgba(111, 92, 255, 0.12);
+    }
+
+    .score strong {
+      display: block;
+      font-size: 28px;
+      line-height: 1;
+      color: var(--accent);
+    }
+
+    .score span {
+      display: block;
+      margin-top: 6px;
+      color: var(--muted);
+      font-size: 12px;
+      font-weight: 700;
+      text-transform: lowercase;
+    }
+
+    .hidden-canvas {
+      position: absolute;
+      left: -99999px;
+      top: -99999px;
+      opacity: 0;
+      pointer-events: none;
+    }
+
+    @media (max-width: 960px) {
+      .main-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .stats {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <section class="top">
+      <img src="typelogo.png" alt="type & seek logo" class="brand-logo" />
+    </section>
+
+    <section class="main-grid">
+      <aside class="panel">
+        <div class="panel-inner">
+          <div class="panel-title">
+            <h2>try it</h2>
+            <div class="dot"></div>
+          </div>
+          <p class="helper">drop in an image, check the search text, then load results.</p>
+
+          <div class="stack">
+            <div class="preview-card">
+              <div class="preview-head">
+                <h3>upload image</h3>
+                <span class="mini-tag" id="searchMeta">waiting</span>
+              </div>
+              <label class="dropzone" id="dropzone">
+                <input id="imageInput" type="file" accept="image/*" />
+                <div class="image-preview" id="imagePreview">
+                  <div class="dropzone-copy" id="dropzoneCopy">
+                    <div class="dropzone-title">drag and drop an image</div>
+                    <div class="dropzone-subtitle">or click here to upload</div>
+                  </div>
+                </div>
+              </label>
+            </div>
+
+            <div class="field">
+              <label for="ocrText">search text</label>
+              <textarea id="ocrText" placeholder="search text will appear here. you can edit it before results load."></textarea>
+            </div>
+
+            <div class="row">
+              <div class="field">
+                <label for="fontSize">font size</label>
+                <select id="fontSize">
+                  <option value="64">64 px</option>
+                  <option value="72" selected>72 px</option>
+                  <option value="84">84 px</option>
+                  <option value="96">96 px</option>
+                </select>
+              </div>
+              <div class="field">
+                <label for="topCount">top results</label>
+                <select id="topCount">
+                  <option value="5">5</option>
+                  <option value="8" selected>8</option>
+                  <option value="10">10</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="field">
+              <label for="adobeKit">adobe kit url or id</label>
+              <input id="adobeKit" type="text" placeholder="optional: use.typekit.net/abcd123.css" />
+            </div>
+
+            <div class="toggle-row">
+              <label class="check"><input id="useGoogle" type="checkbox" checked /> google / slides-friendly fonts</label>
+              <label class="check"><input id="useAdobe" type="checkbox" checked /> adobe font candidates</label>
+            </div>
+
+            <div class="action-row">
+              <button class="primary" id="ocrBtn">search image</button>
+              <button class="primary" id="matchBtn">show results</button>
+              <button class="secondary" id="demoBtn">load demo</button>
+            </div>
+          </div>
+        </div>
+      </aside>
+
+      <main class="panel">
+        <div class="panel-inner">
+          <div class="panel-title">
+            <h2>results</h2>
+            <div class="dot"></div>
+          </div>
+
+          <div class="status" id="statusBox"></div>
+
+          <div class="preview-card">
+            <div class="preview-head">
+              <h3>text used for results</h3>
+              <span class="mini-tag" id="charMeta">—</span>
+            </div>
+            <div class="text-preview" id="textPreview">
+              <div class="text-preview-sample" id="textPreviewSample">your text sample will appear here.</div>
+            </div>
+          </div>
+
+          <div class="stats">
+            <div class="stat">
+              <div class="k">search status</div>
+              <div class="v" id="searchMetaDuplicate">waiting</div>
+            </div>
+            <div class="stat">
+              <div class="k">text characters</div>
+              <div class="v" id="charMetaDuplicate">—</div>
+            </div>
+            <div class="stat">
+              <div class="k">fonts checked</div>
+              <div class="v" id="fontMeta">—</div>
+            </div>
+          </div>
+
+          <div style="height: 18px"></div>
+          <div class="result-list" id="results"></div>
+        </div>
+      </main>
+    </section>
+  </div>
+
+  <canvas id="workCanvas" class="hidden-canvas" width="1200" height="260"></canvas>
+  <canvas id="imageCanvas" class="hidden-canvas" width="1200" height="260"></canvas>
+
+  <script>
+    const GOOGLE_CANDIDATES = [
+      { name: 'Inter', source: 'google / slides-friendly', category: 'sans serif' },
+      { name: 'Roboto', source: 'google / slides-friendly', category: 'sans serif' },
+      { name: 'Open Sans', source: 'google / slides-friendly', category: 'sans serif' },
+      { name: 'Lato', source: 'google / slides-friendly', category: 'sans serif' },
+      { name: 'Montserrat', source: 'google / slides-friendly', category: 'sans serif' },
+      { name: 'Poppins', source: 'google / slides-friendly', category: 'sans serif' },
+      { name: 'Nunito', source: 'google / slides-friendly', category: 'sans serif' },
+      { name: 'Raleway', source: 'google / slides-friendly', category: 'sans serif' },
+      { name: 'Oswald', source: 'google / slides-friendly', category: 'display / sans serif' },
+      { name: 'Merriweather', source: 'google / slides-friendly', category: 'serif' },
+      { name: 'Playfair Display', source: 'google / slides-friendly', category: 'serif / display' },
+      { name: 'Libre Baskerville', source: 'google / slides-friendly', category: 'serif' },
+      { name: 'PT Serif', source: 'google / slides-friendly', category: 'serif' },
+      { name: 'Source Sans 3', source: 'google / slides-friendly', category: 'sans serif' },
+      { name: 'Work Sans', source: 'google / slides-friendly', category: 'sans serif' },
+      { name: 'DM Sans', source: 'google / slides-friendly', category: 'sans serif' },
+      { name: 'Fira Sans', source: 'google / slides-friendly', category: 'sans serif' },
+      { name: 'Inconsolata', source: 'google / slides-friendly', category: 'monospace' }
+    ];
+
+    const ADOBE_CANDIDATES = [
+      { name: 'Proxima Nova', source: 'adobe fonts', category: 'sans serif' },
+      { name: 'Avenir Next', source: 'adobe fonts', category: 'sans serif' },
+      { name: 'Futura PT', source: 'adobe fonts', category: 'sans serif / geometric' },
+      { name: 'Minion Pro', source: 'adobe fonts', category: 'serif' },
+      { name: 'Acumin Pro', source: 'adobe fonts', category: 'sans serif' },
+      { name: 'Myriad Pro', source: 'adobe fonts', category: 'sans serif' },
+      { name: 'Source Serif 4', source: 'adobe fonts', category: 'serif' },
+      { name: 'Source Sans 3', source: 'adobe fonts', category: 'sans serif' },
+      { name: 'Adobe Caslon Pro', source: 'adobe fonts', category: 'serif' },
+      { name: 'FF DIN', source: 'adobe fonts', category: 'sans serif' },
+      { name: 'Trade Gothic', source: 'adobe fonts', category: 'sans serif' },
+      { name: 'Neue Haas Grotesk', source: 'adobe fonts', category: 'sans serif' },
+      { name: 'Bickham Script Pro', source: 'adobe fonts', category: 'script' },
+      { name: 'Kepler Std', source: 'adobe fonts', category: 'serif' }
+    ];
+
+    const imageInput = document.getElementById('imageInput');
+    const dropzone = document.getElementById('dropzone');
+    const ocrText = document.getElementById('ocrText');
+    const ocrBtn = document.getElementById('ocrBtn');
+    const matchBtn = document.getElementById('matchBtn');
+    const demoBtn = document.getElementById('demoBtn');
+    const imagePreview = document.getElementById('imagePreview');
+    const textPreviewSample = document.getElementById('textPreviewSample');
+    const results = document.getElementById('results');
+    const statusBox = document.getElementById('statusBox');
+    const searchMeta = document.getElementById('searchMeta');
+    const searchMetaDuplicate = document.getElementById('searchMetaDuplicate');
+    const charMeta = document.getElementById('charMeta');
+    const charMetaDuplicate = document.getElementById('charMetaDuplicate');
+    const fontMeta = document.getElementById('fontMeta');
+    const workCanvas = document.getElementById('workCanvas');
+    const imageCanvas = document.getElementById('imageCanvas');
+
+    let uploadedImage = null;
+    let imageDataUrl = null;
+
+    function syncMeta(searchValue, charValue) {
+      if (searchValue !== undefined) {
+        searchMeta.textContent = searchValue;
+        searchMetaDuplicate.textContent = searchValue;
+      }
+      if (charValue !== undefined) {
+        charMeta.textContent = charValue;
+        charMetaDuplicate.textContent = charValue;
+      }
+    }
+
+    function setStatus(message, type = 'ok') {
+      statusBox.textContent = message;
+      statusBox.className = `status show ${type === 'warn' ? 'warn' : ''}`;
+    }
+
+    function escapeHtml(str) {
+      return str
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#039;');
+    }
+
+    function normalizeText(str) {
+      return (str || '').replace(/\s+/g, ' ').trim().toLowerCase();
+    }
+
+    function updateTextPreview() {
+      const value = normalizeText(ocrText.value);
+      textPreviewSample.textContent = value || 'your text sample will appear here.';
+      syncMeta(undefined, value ? String(value.length) : '—');
+    }
+
+    ocrText.addEventListener('input', updateTextPreview);
+
+    function loadSelectedFile(file) {
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = () => {
+        imageDataUrl = reader.result;
+        const img = new Image();
+        img.onload = () => {
+          uploadedImage = img;
+          imagePreview.innerHTML = '';
+          imagePreview.appendChild(img);
+          syncMeta('image ready');
+          setStatus('image ready. press search image.');
+        };
+        img.src = imageDataUrl;
+      };
+      reader.readAsDataURL(file);
+    }
+
+    imageInput.addEventListener('change', (e) => {
+      const file = e.target.files?.[0];
+      loadSelectedFile(file);
+    });
+
+    dropzone.addEventListener('dragover', (e) => {
+      e.preventDefault();
+      dropzone.classList.add('dragover');
+    });
+
+    dropzone.addEventListener('dragleave', () => {
+      dropzone.classList.remove('dragover');
+    });
+
+    dropzone.addEventListener('drop', (e) => {
+      e.preventDefault();
+      dropzone.classList.remove('dragover');
+      const file = e.dataTransfer?.files?.[0];
+      loadSelectedFile(file);
+    });
+
+    demoBtn.addEventListener('click', () => {
+      ocrText.value = 'modern typography';
+      updateTextPreview();
+      setStatus('demo loaded. press show results.');
+    });
+
+    async function loadAdobeKitIfProvided() {
+      const adobeKitValue = document.getElementById('adobeKit').value.trim();
+      if (!adobeKitValue) return;
+
+      let href = adobeKitValue;
+      if (!href.includes('http') && !href.endsWith('.css')) {
+        href = `https://use.typekit.net/${href}.css`;
+      }
+
+      if ([...document.querySelectorAll('link[data-adobe-kit]')].some(link => link.href === href)) return;
+
+      const link = document.createElement('link');
+      link.rel = 'stylesheet';
+      link.href = href;
+      link.setAttribute('data-adobe-kit', 'true');
+      document.head.appendChild(link);
+      await new Promise(resolve => setTimeout(resolve, 1200));
+    }
+
+    ocrBtn.addEventListener('click', async () => {
+      if (!imageDataUrl) {
+        setStatus('please upload an image first.', 'warn');
+        return;
+      }
+
+      try {
+        ocrBtn.disabled = true;
+        setStatus('search loading...');
+        syncMeta('search loading');
+
+        const result = await Tesseract.recognize(imageDataUrl, 'eng', {
+          logger: m => {
+            if (m.status === 'recognizing text' && typeof m.progress === 'number') {
+              setStatus(`search loading... ${Math.round(m.progress * 100)}%`);
+            }
+          }
+        });
+
+        const text = normalizeText(result.data.text || '');
+        ocrText.value = text;
+        updateTextPreview();
+        syncMeta(text ? 'search ready' : 'nothing found', text ? String(text.length) : '0');
+
+        if (!text) {
+          setStatus('search finished, but nothing clear was found. try a cleaner image or type it in.', 'warn');
+          return;
+        }
+
+        setStatus('search finished. check the text, then press show results.');
+      } catch (error) {
+        console.error(error);
+        syncMeta('search failed');
+        setStatus('search failed. try a clearer image and run it again.', 'warn');
+      } finally {
+        ocrBtn.disabled = false;
+      }
+    });
+
+    function collectCandidates() {
+      const useGoogle = document.getElementById('useGoogle').checked;
+      const useAdobe = document.getElementById('useAdobe').checked;
+      let candidates = [];
+      if (useGoogle) candidates = candidates.concat(GOOGLE_CANDIDATES);
+      if (useAdobe) candidates = candidates.concat(ADOBE_CANDIDATES);
+
+      const deduped = [];
+      const seen = new Set();
+      for (const item of candidates) {
+        const key = item.name.toLowerCase();
+        if (!seen.has(key)) {
+          deduped.push(item);
+          seen.add(key);
+        }
+      }
+      return deduped;
+    }
+
+    function drawTargetMask(img) {
+      const ctx = imageCanvas.getContext('2d', { willReadFrequently: true });
+      const W = imageCanvas.width;
+      const H = imageCanvas.height;
+      ctx.clearRect(0, 0, W, H);
+      ctx.fillStyle = 'white';
+      ctx.fillRect(0, 0, W, H);
+
+      const scale = Math.min(W / img.width, H / img.height);
+      const drawW = img.width * scale;
+      const drawH = img.height * scale;
+      const x = (W - drawW) / 2;
+      const y = (H - drawH) / 2;
+      ctx.drawImage(img, x, y, drawW, drawH);
+
+      const imgData = ctx.getImageData(0, 0, W, H);
+      const data = imgData.data;
+      for (let i = 0; i < data.length; i += 4) {
+        const gray = 0.299 * data[i] + 0.587 * data[i + 1] + 0.114 * data[i + 2];
+        const v = gray < 180 ? 0 : 255;
+        data[i] = v;
+        data[i + 1] = v;
+        data[i + 2] = v;
+        data[i + 3] = 255;
+      }
+      ctx.putImageData(imgData, 0, 0);
+      return ctx.getImageData(0, 0, W, H).data;
+    }
+
+    function wrapCenterText(ctx, text, centerX, centerY, maxWidth, lineHeight) {
+      const words = text.split(' ');
+      const lines = [];
+      let line = '';
+      for (const word of words) {
+        const test = line ? `${line} ${word}` : word;
+        if (ctx.measureText(test).width > maxWidth && line) {
+          lines.push(line);
+          line = word;
+        } else {
+          line = test;
+        }
+      }
+      if (line) lines.push(line);
+
+      const totalHeight = lines.length * lineHeight;
+      let y = centerY - totalHeight / 2 + lineHeight / 2;
+      for (const item of lines) {
+        ctx.fillText(item, centerX, y);
+        y += lineHeight;
+      }
+    }
+
+    function drawTextMask(text, fontFamily, fontSize) {
+      const ctx = workCanvas.getContext('2d', { willReadFrequently: true });
+      const W = workCanvas.width;
+      const H = workCanvas.height;
+      ctx.clearRect(0, 0, W, H);
+      ctx.fillStyle = 'white';
+      ctx.fillRect(0, 0, W, H);
+      ctx.fillStyle = 'black';
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      ctx.font = `700 ${fontSize}px "${fontFamily}", Arial, sans-serif`;
+      wrapCenterText(ctx, text.slice(0, 40), W / 2, H / 2, W - 80, fontSize * 1.15);
+      return ctx.getImageData(0, 0, W, H).data;
+    }
+
+    function compareMasks(target, sample) {
+      let total = 0;
+      let same = 0;
+      for (let i = 0; i < target.length; i += 4) {
+        const t = target[i] < 128 ? 1 : 0;
+        const s = sample[i] < 128 ? 1 : 0;
+        total++;
+        if (t === s) same++;
+      }
+      return Math.round((same / total) * 1000) / 10;
+    }
+
+    function renderResults(matches, text) {
+      results.innerHTML = matches.map((match, index) => {
+        const sourceNotes = match.source === 'adobe fonts'
+          ? 'best when this font is included in your adobe fonts kit.'
+          : 'a practical option for web use and slide workflows.';
+
+        return `
+          <article class="result-card">
+            <div>
+              <h3>#${index + 1} — ${escapeHtml(match.name.toLowerCase())}</h3>
+              <div class="result-meta">
+                <span class="tag">${escapeHtml(match.source)}</span>
+                <span class="tag">${escapeHtml(match.category)}</span>
+              </div>
+              <div class="sample-line" style="font-family: '${escapeHtml(match.name)}', Arial, sans-serif;">
+                ${escapeHtml(text)}
+              </div>
+              <p class="result-note">${escapeHtml(sourceNotes)}</p>
+            </div>
+            <div class="score">
+              <strong>${match.score}%</strong>
+              <span>match</span>
+            </div>
+          </article>
+        `;
+      }).join('');
+    }
+
+    matchBtn.addEventListener('click', async () => {
+      const text = normalizeText(ocrText.value);
+      if (!text) {
+        setStatus('please search or type some text first.', 'warn');
+        return;
+      }
+      if (!uploadedImage) {
+        setStatus('please upload an image first.', 'warn');
+        return;
+      }
+
+      try {
+        matchBtn.disabled = true;
+        setStatus('results loading...');
+        await loadAdobeKitIfProvided();
+        await document.fonts.ready;
+
+        const fontSize = Number(document.getElementById('fontSize').value);
+        const topCount = Number(document.getElementById('topCount').value);
+        const candidates = collectCandidates();
+        fontMeta.textContent = String(candidates.length).toLowerCase();
+
+        const targetMask = drawTargetMask(uploadedImage);
+        const scored = candidates.map(candidate => ({
+          ...candidate,
+          score: compareMasks(targetMask, drawTextMask(text, candidate.name, fontSize))
+        }));
+
+        scored.sort((a, b) => b.score - a.score);
+        renderResults(scored.slice(0, topCount), text);
+        setStatus('results ready. here are the closest matches!');
+      } catch (error) {
+        console.error(error);
+        setStatus('results failed. try a simpler crop or shorter text sample.', 'warn');
+      } finally {
+        matchBtn.disabled = false;
+      }
+    });
+  </script>
+</body>
+</html>
