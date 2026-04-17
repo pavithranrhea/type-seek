@@ -3,12 +3,11 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>type & seek</title>
-  <link rel="icon" type="image/x-icon" href="icon.png">
+  <title>font checker</title>
 
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Roboto:wght@400;500;700&family=Montserrat:wght@400;600;700&family=Poppins:wght@400;600;700&family=Nunito:wght@400;700&family=Raleway:wght@400;600;700&family=Oswald:wght@400;500;700&family=Merriweather:wght@400;700&family=Playfair+Display:wght@400;700&family=Libre+Baskerville:wght@400;700&family=PT+Serif:wght@400;700&family=Source+Sans+3:wght@400;600;700&family=Work+Sans:wght@400;600;700&family=DM+Sans:wght@400;500;700&family=Fira+Sans:wght@400;600;700&family=Inconsolata:wght@400;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Roboto:wght@400;500;700&family=Montserrat:wght@400;600;700&family=Poppins:wght@400;600;700&family=Nunito:wght@400;700&family=Raleway:wght@400;600;700&family=Oswald:wght@400;500;700&family=Merriweather:wght@400;700&family=Playfair+Display:wght@400;700&family=Libre+Baskerville:wght@400;700&family=PT+Serif:wght@400;700&family=Source+Sans+3:wght@400;600;700&family=Work+Sans:wght@400;600;700&family=DM+Sans:wght@400;500;700&family=Fira+Sans:wght@400;600;700&family=Inconsolata:wght@400;700&family=Lobster&family=Pacifico&family=Dancing+Script:wght@400;700&family=Great+Vibes&family=Bebas+Neue&family=Anton&family=Abril+Fatface&family=Righteous&family=Comfortaa:wght@400;700&family=Quicksand:wght@400;700&family=Josefin+Sans:wght@400;700&family=Zilla+Slab:wght@400;700&family=Arvo:wght@400;700&display=swap" rel="stylesheet">
   <script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
 
   <style>
@@ -180,6 +179,46 @@
 
     .check input { accent-color: var(--accent); }
 
+    .filter-wrap {
+      display: grid;
+      gap: 10px;
+      margin-top: 4px;
+    }
+
+    .filter-tags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .filter-chip {
+      appearance: none;
+      border: 1px solid var(--border);
+      background: white;
+      color: var(--muted);
+      border-radius: 999px;
+      padding: 9px 12px;
+      font: inherit;
+      font-size: 12px;
+      font-weight: 700;
+      text-transform: lowercase;
+      cursor: pointer;
+      transition: transform 0.15s ease, border-color 0.15s ease, background 0.15s ease, color 0.15s ease;
+    }
+
+    .filter-chip:hover {
+      transform: translateY(-1px);
+      border-color: var(--accent);
+      background: #faf9ff;
+      color: var(--accent);
+    }
+
+    .filter-chip.active {
+      background: rgba(111, 92, 255, 0.10);
+      border-color: rgba(111, 92, 255, 0.24);
+      color: var(--accent);
+    }
+
     .action-row {
       display: grid;
       gap: 10px;
@@ -286,7 +325,12 @@
     }
 
     .dropzone input {
-      display: none;
+      position: absolute;
+      inset: 0;
+      opacity: 0;
+      pointer-events: none;
+      width: 100%;
+      height: 100%;
     }
 
     .dropzone-copy {
@@ -375,7 +419,34 @@
 
     .result-list {
       display: grid;
-      gap: 14px;
+      gap: 18px;
+    }
+
+    .result-section {
+      display: grid;
+      gap: 12px;
+    }
+
+    .result-section-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      padding: 4px 2px;
+    }
+
+    .result-section-head h3 {
+      margin: 0;
+      font-size: 18px;
+      letter-spacing: -0.03em;
+      text-transform: lowercase;
+    }
+
+    .result-count {
+      color: var(--muted);
+      font-size: 12px;
+      font-weight: 700;
+      text-transform: lowercase;
     }
 
     .result-card {
@@ -396,10 +467,44 @@
     }
 
     .result-card h3 {
-      margin: 0 0 8px;
+      margin: 0;
       font-size: 20px;
       letter-spacing: -0.03em;
       text-transform: lowercase;
+    }
+
+    .result-title-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      margin: 0 0 8px;
+    }
+
+    .font-link {
+      width: 36px;
+      height: 36px;
+      border-radius: 999px;
+      border: 1px solid var(--border);
+      background: white;
+      color: var(--text);
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      text-decoration: none;
+      transition: transform 0.15s ease, border-color 0.15s ease, background 0.15s ease;
+      flex: 0 0 auto;
+    }
+
+    .font-link:hover {
+      transform: translateY(-1px);
+      border-color: var(--accent);
+      background: #faf9ff;
+    }
+
+    .font-link svg {
+      width: 16px;
+      height: 16px;
     }
 
     .result-meta {
@@ -443,8 +548,8 @@
       padding: 16px 14px;
       border-radius: 20px;
       text-align: center;
-      background: linear-gradient(180deg, rgba(111, 92, 255, 0.12), rgba(34, 195, 166, 0.10));
-      border: 1px solid rgba(111, 92, 255, 0.12);
+      background: transparent;
+      border: 1px solid var(--border);
     }
 
     .score strong {
@@ -503,7 +608,7 @@
                 <h3>upload image</h3>
                 <span class="mini-tag" id="searchMeta">waiting</span>
               </div>
-              <label class="dropzone" id="dropzone">
+              <div class="dropzone" id="dropzone" role="button" tabindex="0" aria-label="upload image">
                 <input id="imageInput" type="file" accept="image/*" />
                 <div class="image-preview" id="imagePreview">
                   <div class="dropzone-copy" id="dropzoneCopy">
@@ -511,7 +616,7 @@
                     <div class="dropzone-subtitle">or click here to upload</div>
                   </div>
                 </div>
-              </label>
+              </div>
             </div>
 
             <div class="field">
@@ -549,10 +654,26 @@
               <label class="check"><input id="useAdobe" type="checkbox" checked /> adobe font candidates</label>
             </div>
 
+            <div class="field">
+              <label>filter by font type</label>
+              <div class="filter-wrap">
+                <div class="filter-tags" id="filterTags">
+                  <button type="button" class="filter-chip active" data-filter="all">all</button>
+                  <button type="button" class="filter-chip" data-filter="sans serif">sans serif</button>
+                  <button type="button" class="filter-chip" data-filter="serif">serif</button>
+                  <button type="button" class="filter-chip" data-filter="slab serif">slab serif</button>
+                  <button type="button" class="filter-chip" data-filter="script">script</button>
+                  <button type="button" class="filter-chip" data-filter="display">display</button>
+                  <button type="button" class="filter-chip" data-filter="geometric">geometric</button>
+                  <button type="button" class="filter-chip" data-filter="rounded">rounded</button>
+                  <button type="button" class="filter-chip" data-filter="monospace">monospace</button>
+                </div>
+              </div>
+            </div>
+
             <div class="action-row">
               <button class="primary" id="ocrBtn">search image</button>
               <button class="primary" id="matchBtn">show results</button>
-              <button class="secondary" id="demoBtn">load demo</button>
             </div>
           </div>
         </div>
@@ -604,6 +725,7 @@
 
   <script>
     const GOOGLE_CANDIDATES = [
+      // sans serif
       { name: 'Inter', source: 'google / slides-friendly', category: 'sans serif' },
       { name: 'Roboto', source: 'google / slides-friendly', category: 'sans serif' },
       { name: 'Open Sans', source: 'google / slides-friendly', category: 'sans serif' },
@@ -612,15 +734,35 @@
       { name: 'Poppins', source: 'google / slides-friendly', category: 'sans serif' },
       { name: 'Nunito', source: 'google / slides-friendly', category: 'sans serif' },
       { name: 'Raleway', source: 'google / slides-friendly', category: 'sans serif' },
-      { name: 'Oswald', source: 'google / slides-friendly', category: 'display / sans serif' },
+      { name: 'Work Sans', source: 'google / slides-friendly', category: 'sans serif' },
+      { name: 'DM Sans', source: 'google / slides-friendly', category: 'sans serif' },
+      { name: 'Fira Sans', source: 'google / slides-friendly', category: 'sans serif' },
+      { name: 'Comfortaa', source: 'google / slides-friendly', category: 'rounded sans serif' },
+      { name: 'Quicksand', source: 'google / slides-friendly', category: 'rounded sans serif' },
+      { name: 'Josefin Sans', source: 'google / slides-friendly', category: 'geometric sans serif' },
+
+      // serif
       { name: 'Merriweather', source: 'google / slides-friendly', category: 'serif' },
       { name: 'Playfair Display', source: 'google / slides-friendly', category: 'serif / display' },
       { name: 'Libre Baskerville', source: 'google / slides-friendly', category: 'serif' },
       { name: 'PT Serif', source: 'google / slides-friendly', category: 'serif' },
-      { name: 'Source Sans 3', source: 'google / slides-friendly', category: 'sans serif' },
-      { name: 'Work Sans', source: 'google / slides-friendly', category: 'sans serif' },
-      { name: 'DM Sans', source: 'google / slides-friendly', category: 'sans serif' },
-      { name: 'Fira Sans', source: 'google / slides-friendly', category: 'sans serif' },
+      { name: 'Zilla Slab', source: 'google / slides-friendly', category: 'slab serif' },
+      { name: 'Arvo', source: 'google / slides-friendly', category: 'slab serif' },
+
+      // display
+      { name: 'Oswald', source: 'google / slides-friendly', category: 'display / sans serif' },
+      { name: 'Bebas Neue', source: 'google / slides-friendly', category: 'display' },
+      { name: 'Anton', source: 'google / slides-friendly', category: 'display' },
+      { name: 'Abril Fatface', source: 'google / slides-friendly', category: 'display serif' },
+      { name: 'Righteous', source: 'google / slides-friendly', category: 'display' },
+
+      // script
+      { name: 'Lobster', source: 'google / slides-friendly', category: 'script' },
+      { name: 'Pacifico', source: 'google / slides-friendly', category: 'script' },
+      { name: 'Dancing Script', source: 'google / slides-friendly', category: 'script' },
+      { name: 'Great Vibes', source: 'google / slides-friendly', category: 'script' },
+
+      // monospace
       { name: 'Inconsolata', source: 'google / slides-friendly', category: 'monospace' }
     ];
 
@@ -646,7 +788,6 @@
     const ocrText = document.getElementById('ocrText');
     const ocrBtn = document.getElementById('ocrBtn');
     const matchBtn = document.getElementById('matchBtn');
-    const demoBtn = document.getElementById('demoBtn');
     const imagePreview = document.getElementById('imagePreview');
     const textPreviewSample = document.getElementById('textPreviewSample');
     const results = document.getElementById('results');
@@ -656,11 +797,15 @@
     const charMeta = document.getElementById('charMeta');
     const charMetaDuplicate = document.getElementById('charMetaDuplicate');
     const fontMeta = document.getElementById('fontMeta');
+    const filterTags = document.getElementById('filterTags');
     const workCanvas = document.getElementById('workCanvas');
     const imageCanvas = document.getElementById('imageCanvas');
 
     let uploadedImage = null;
     let imageDataUrl = null;
+    let activeFilter = 'all';
+    let lastSearchText = '';
+    let lastScoredResults = [];
 
     function syncMeta(searchValue, charValue) {
       if (searchValue !== undefined) {
@@ -697,7 +842,9 @@
       syncMeta(undefined, value ? String(value.length) : '—');
     }
 
-    ocrText.addEventListener('input', updateTextPreview);
+    if (ocrText) {
+      ocrText.addEventListener('input', updateTextPreview);
+    }
 
     function loadSelectedFile(file) {
       if (!file) return;
@@ -717,34 +864,51 @@
       reader.readAsDataURL(file);
     }
 
-    imageInput.addEventListener('change', (e) => {
-      const file = e.target.files?.[0];
-      loadSelectedFile(file);
-    });
+    if (imageInput) {
+      imageInput.addEventListener('change', (e) => {
+        const file = e.target.files?.[0];
+        loadSelectedFile(file);
+      });
+    }
 
-    dropzone.addEventListener('dragover', (e) => {
-      e.preventDefault();
-      dropzone.classList.add('dragover');
-    });
+    if (dropzone && imageInput) {
+      dropzone.addEventListener('click', () => {
+        imageInput.click();
+      });
 
-    dropzone.addEventListener('dragleave', () => {
-      dropzone.classList.remove('dragover');
-    });
+      dropzone.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter' || e.key === ' ') {
+          e.preventDefault();
+          imageInput.click();
+        }
+      });
 
-    dropzone.addEventListener('drop', (e) => {
-      e.preventDefault();
-      dropzone.classList.remove('dragover');
-      const file = e.dataTransfer?.files?.[0];
-      loadSelectedFile(file);
-    });
+      dropzone.addEventListener('dragenter', (e) => {
+        e.preventDefault();
+        dropzone.classList.add('dragover');
+      });
 
-    demoBtn.addEventListener('click', () => {
-      ocrText.value = 'modern typography';
-      updateTextPreview();
-      setStatus('demo loaded. press show results.');
-    });
+      dropzone.addEventListener('dragover', (e) => {
+        e.preventDefault();
+        dropzone.classList.add('dragover');
+      });
 
-    async function loadAdobeKitIfProvided() {
+      dropzone.addEventListener('dragleave', () => {
+        dropzone.classList.remove('dragover');
+      });
+
+      dropzone.addEventListener('drop', (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        dropzone.classList.remove('dragover');
+        const file = e.dataTransfer?.files?.[0];
+        if (file) {
+          loadSelectedFile(file);
+        }
+      });
+    }
+
+        async function loadAdobeKitIfProvided() {
       const adobeKitValue = document.getElementById('adobeKit').value.trim();
       if (!adobeKitValue) return;
 
@@ -763,7 +927,7 @@
       await new Promise(resolve => setTimeout(resolve, 1200));
     }
 
-    ocrBtn.addEventListener('click', async () => {
+    if (ocrBtn) ocrBtn.addEventListener('click', async () => {
       if (!imageDataUrl) {
         setStatus('please upload an image first.', 'warn');
         return;
@@ -802,6 +966,11 @@
       }
     });
 
+    function matchesActiveFilter(category) {
+      if (activeFilter === 'all') return true;
+      return (category || '').toLowerCase().includes(activeFilter);
+    }
+
     function collectCandidates() {
       const useGoogle = document.getElementById('useGoogle').checked;
       const useAdobe = document.getElementById('useAdobe').checked;
@@ -813,7 +982,7 @@
       const seen = new Set();
       for (const item of candidates) {
         const key = item.name.toLowerCase();
-        if (!seen.has(key)) {
+        if (!seen.has(key) && matchesActiveFilter(item.category)) {
           deduped.push(item);
           seen.add(key);
         }
@@ -900,35 +1069,160 @@
       return Math.round((same / total) * 1000) / 10;
     }
 
-    function renderResults(matches, text) {
-      results.innerHTML = matches.map((match, index) => {
-        const sourceNotes = match.source === 'adobe fonts'
-          ? 'best when this font is included in your adobe fonts kit.'
-          : 'a practical option for web use and slide workflows.';
+    function setActiveFilter(nextFilter) {
+      activeFilter = nextFilter;
+      if (!filterTags) return;
+      filterTags.querySelectorAll('.filter-chip').forEach((chip) => {
+        chip.classList.toggle('active', chip.dataset.filter === nextFilter);
+      });
+    }
 
-        return `
+    function mapCategoryToFilter(category) {
+      const value = (category || '').toLowerCase();
+      if (value.includes('slab serif')) return 'slab serif';
+      if (value.includes('rounded')) return 'rounded';
+      if (value.includes('geometric')) return 'geometric';
+      if (value.includes('sans serif')) return 'sans serif';
+      if (value.includes('serif')) return 'serif';
+      if (value.includes('script')) return 'script';
+      if (value.includes('display')) return 'display';
+      if (value.includes('monospace')) return 'monospace';
+      return 'all';
+    }
+
+    function matchesFilterValue(category, filterValue) {
+      if (filterValue === 'all') return true;
+      return mapCategoryToFilter(category) === filterValue;
+    }
+
+    function getVisibleResults(items) {
+      return items.filter((item) => matchesFilterValue(item.category, activeFilter));
+    }
+
+    function rerenderResults() {
+      const topCount = Number(document.getElementById('topCount').value);
+      const visible = getVisibleResults(lastScoredResults);
+      renderResults(visible, lastSearchText, topCount);
+      fontMeta.textContent = String(visible.length).toLowerCase();
+      attachResultTagHandlers();
+      if (!visible.length) {
+        setStatus('no fonts match that filter yet. try another type.');
+      } else if (activeFilter === 'all') {
+        setStatus('results ready. here are the closest matches.');
+      } else {
+        setStatus(`${activeFilter} results ready.`);
+      }
+    }
+
+    if (filterTags) {
+      filterTags.addEventListener('click', (e) => {
+        const chip = e.target.closest('.filter-chip');
+        if (!chip) return;
+        setActiveFilter(chip.dataset.filter || 'all');
+        rerenderResults();
+      });
+    }
+
+    function getFontLink(match) {
+      const family = encodeURIComponent(match.name);
+      if (match.source === 'adobe fonts') {
+        return `https://fonts.adobe.com/search?query=${family}`;
+      }
+      return `https://fonts.google.com/?query=${family}`;
+    }
+
+    function attachResultTagHandlers() {
+      results.querySelectorAll('[data-filter-tag]').forEach((tag) => {
+        tag.addEventListener('click', () => {
+          const category = tag.getAttribute('data-filter-tag') || 'all';
+          setActiveFilter(mapCategoryToFilter(category));
+          rerenderResults();
+        });
+      });
+    }
+
+    function getSectionTitle(filterValue) {
+      return filterValue === 'all' ? 'all results' : `${filterValue} results`;
+    }
+
+    function renderSection(title, matches, text, topCount) {
+      const limited = matches.slice(0, topCount);
+      return `
+        <section class="result-section">
+          <div class="result-section-head">
+            <h3>${escapeHtml(title)}</h3>
+            <span class="result-count">${matches.length} fonts</span>
+          </div>
+          ${limited.map((match, index) => {
+            const link = getFontLink(match);
+            return `
+              <article class="result-card">
+                <div>
+                  <div class="result-title-row">
+                    <h3>#${index + 1} — ${escapeHtml(match.name.toLowerCase())}</h3>
+                    <a class="font-link" href="${link}" target="_blank" rel="noopener noreferrer" aria-label="open ${escapeHtml(match.name.toLowerCase())}">
+                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                        <path d="m14 3h7v7"></path>
+                        <path d="m10 14 11-11"></path>
+                        <path d="M21 14v4a3 3 0 0 1-3 3H6a3 3 0 0 1-3-3V6a3 3 0 0 1 3-3h4"></path>
+                      </svg>
+                    </a>
+                  </div>
+                  <div class="result-meta">
+                    <span class="tag">${escapeHtml(match.source)}</span>
+                    <button type="button" class="tag" data-filter-tag="${escapeHtml(match.category.toLowerCase())}">${escapeHtml(match.category)}</button>
+                  </div>
+                  <div class="sample-line" style="font-family: '${escapeHtml(match.name)}', Arial, sans-serif;">
+                    ${escapeHtml(text)}
+                  </div>
+                </div>
+                <div class="score">
+                  <strong>${match.score}%</strong>
+                  <span>match</span>
+                </div>
+              </article>
+            `;
+          }).join('')}
+        </section>
+      `;
+    }
+
+    function renderResults(matches, text, topCount) {
+      if (!matches.length) {
+        results.innerHTML = `
           <article class="result-card">
             <div>
-              <h3>#${index + 1} — ${escapeHtml(match.name.toLowerCase())}</h3>
-              <div class="result-meta">
-                <span class="tag">${escapeHtml(match.source)}</span>
-                <span class="tag">${escapeHtml(match.category)}</span>
-              </div>
-              <div class="sample-line" style="font-family: '${escapeHtml(match.name)}', Arial, sans-serif;">
-                ${escapeHtml(text)}
-              </div>
-              <p class="result-note">${escapeHtml(sourceNotes)}</p>
+              <h3>no matches found</h3>
+              <p class="result-note">try switching the font type filter or turning on more font sources.</p>
             </div>
             <div class="score">
-              <strong>${match.score}%</strong>
+              <strong>0%</strong>
               <span>match</span>
             </div>
           </article>
         `;
+        return;
+      }
+
+      if (activeFilter !== 'all') {
+        results.innerHTML = renderSection(getSectionTitle(activeFilter), matches, text, topCount);
+        return;
+      }
+
+      const sectionOrder = ['sans serif', 'serif', 'slab serif', 'script', 'display', 'geometric', 'rounded', 'monospace'];
+      const sections = sectionOrder
+        .map((filterValue) => ({
+          filterValue,
+          items: matches.filter((item) => matchesFilterValue(item.category, filterValue))
+        }))
+        .filter((section) => section.items.length);
+
+      results.innerHTML = sections.map((section) => {
+        return renderSection(getSectionTitle(section.filterValue), section.items, text, topCount);
       }).join('');
     }
 
-    matchBtn.addEventListener('click', async () => {
+    if (matchBtn) matchBtn.addEventListener('click', async () => {
       const text = normalizeText(ocrText.value);
       if (!text) {
         setStatus('please search or type some text first.', 'warn');
@@ -948,7 +1242,13 @@
         const fontSize = Number(document.getElementById('fontSize').value);
         const topCount = Number(document.getElementById('topCount').value);
         const candidates = collectCandidates();
-        fontMeta.textContent = String(candidates.length).toLowerCase();
+
+        if (!candidates.length) {
+          renderResults([], text, topCount);
+          fontMeta.textContent = '0';
+          setStatus('no fonts match that filter yet. try another type.');
+          return;
+        }
 
         const targetMask = drawTargetMask(uploadedImage);
         const scored = candidates.map(candidate => ({
@@ -957,8 +1257,9 @@
         }));
 
         scored.sort((a, b) => b.score - a.score);
-        renderResults(scored.slice(0, topCount), text);
-        setStatus('results ready. here are the closest matches!');
+        lastSearchText = text;
+        lastScoredResults = scored;
+        rerenderResults();
       } catch (error) {
         console.error(error);
         setStatus('results failed. try a simpler crop or shorter text sample.', 'warn');
